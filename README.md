@@ -1,14 +1,16 @@
 # saab-93NG-IBUS
 A collection of known I-BUS messages found in 2002/2003+ second-generation SAAB 9-3's. PR's welcome.
-Some frames have not been verivied and came form a trionictuning thread, 9-3ss 2006+
+Some frames have not been verified and came form a trionictuning thread, 9-3ss 2006+
 
 Single-Wire GM-LAN Bus, 33.33kbps
 
 Messages are presented byte-wise, where **b0** is the least-significant-byte.
 States are represented in binary and hex, and are provided with a human-readable description.
 
+***WIP most values aren't correct***
+
 ## BY ID
-### 0x60
+### 0x60 -- this is wrong
                   | b0 b1 b2
            ID 060 | 00 00 62
     - b1 - key position
@@ -31,8 +33,9 @@ States are represented in binary and hex, and are provided with a human-readable
         - 00100000 (0x20) Cruise control on
 ### 0x108
     - These are wrong atm.
-    - b0:b1
-        - 16 bit integer for turbo boost (percentage I believe)
+    - b1
+        - accelerator pedal
+          00 - FF | 0% - 100%
     - b2:b3
         - 16 bit integer for RPM
     - b4:b5
@@ -40,9 +43,9 @@ States are represented in binary and hex, and are provided with a human-readable
     ??
              b0 b1 b2 b3 b4 b5 b6 b7
     - ID 108 21 GG 00 WW QQ 00 00 00
-      GG    | 00 - FF | accelerator pedal
-      b3 b4 |         | Engine RPM
-      b5 b6 |         | Speed
+      GG    | 00 - FF | accelerator pedal (confirmed pedal position)
+      b2 b3 |         | Engine RPM
+      b4 b3 |         | Speed/128 = KM/H
       
 ### 0x220
     - b1:b2
@@ -166,8 +169,15 @@ States are represented in binary and hex, and are provided with a human-readable
      - key in lock position does make beeping sound
      - Normal state
         - 0x00 0x00 
-     - Driver door open state
-        - 0x00 0x80
+     - b1 - door open state
+        - (0x80) Front left
+        - (0x20) Front Right
+        - (0x08) Rear left
+        - (0x02) Rear right
+        
+        0xA0 both front doors
+        0x0A both rear doors
+        ... etc
 ### 0x520
     - b0
         - Years after 2000
