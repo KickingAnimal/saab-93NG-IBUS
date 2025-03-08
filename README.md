@@ -20,19 +20,19 @@ States are represented in binary and hex, and are provided with a human-readable
         - (0xA0) ON position
         - (0xE0) ST position
     - b2 
-        - voltage
+        - voltage - have not seen this on bus
         -  0x62 * 135 / 1000 = 13,23v?
  
 ### 0x91 - Cruise Control State
-    - b2
-        - 00000000 (0x00) GUESS Cruise control not setup / brake must be pressed
-        - 00100000 (0x20) Brake released, cruise control enabled?
-        - 10100000 (0xa0) Brake pressed
+    - b2 - these are wrong?
+        - 0000 0000 (0x00) GUESS Cruise control not setup / brake must be pressed
+        - 0010 0000 (0x20) Brake released, cruise control enabled?
+        - 1010 0000 (0xa0) Brake pressed
     - b1
-        - 00000000 (0x00) Cruise control off
-        - 00100000 (0x20) Cruise control on
+        - 0000 0000 (0x00) Cruise control off
+        - 0010 0000 (0x20) Cruise control on
 ### 0x108
-    - These are wrong atm.
+    - might be missing something, turbo maybe?
     - b1
         - accelerator pedal
           00 - FF | 0% - 100%
@@ -44,7 +44,7 @@ States are represented in binary and hex, and are provided with a human-readable
              b0 b1 b2 b3 b4 b5 b6 b7
     - ID 108 21 GG 00 WW QQ 00 00 00
       GG    | 00 - FF | accelerator pedal (confirmed pedal position)
-      b2 b3 |         | Engine RPM
+      b2 b3 |         | Engine RPM/4 = real RPM
       b4 b3 |         | Speed/128 = KM/H
       
 ### 0x220
@@ -73,63 +73,63 @@ States are represented in binary and hex, and are provided with a human-readable
 
 ### 0x290
     - b0
-        - 00000001 (0x01) Windshield washer (pull stick fully in)
-        - 00000100 (0x04) Horn
-        - 00010000 (0x10) Flash high beams (pull stick halfway)
-        - 00011000 (0x18) Toggle high beams (pull stick fully in)
+        - 0000 0001 (0x01) Windshield washer (pull stick fully in)
+        - 0000 0100 (0x04) Horn
+        - 0001 0000 (0x10) Flash high beams (pull stick halfway)
+        - 0001 1000 (0x18) Toggle high beams (pull stick fully in)
     - b1
-        - 00000001 (0x01) Wiper single
-        - 00001010 (0x0A) Wiper intermittent
-        - 00001011 (0x0B) Wiper slow
-        - 00001101 (0x0D) Wiper fast
+        - 0000 0001 (0x01) Wiper single
+        - 0000 1010 (0x0A) Wiper intermittent
+        - 0000 1011 (0x0B) Wiper slow
+        - 0000 1101 (0x0D) Wiper fast
     - b3
-        - 00000000 (0x00) Default
-        - 00000001 (0x01) Volume UP
-        - 00000010 (0x02) Volume DOWN
-        - 00000011 (0x03) SRC button
-        - 00000100 (0x04) Voice activation button
-        - 00000101 (0x05) Seek forward
-        - 00000110 (0x06) Seek backward
-        - 00010001 (0x11) NXT button
-        - 00010010 (0x12) Phone button
+        - 0000 0000 (0x00) Default
+        - 0000 0001 (0x01) Volume UP
+        - 0000 0010 (0x02) Volume DOWN
+        - 0000 0011 (0x03) SRC button
+        - 0000 0100 (0x04) Voice activation button
+        - 0000 0101 (0x05) Seek forward
+        - 0000 0110 (0x06) Seek backward
+        - 0001 0001 (0x11) NXT button
+        - 0001 0010 (0x12) Phone button
     - b4
-        - 00000000 (0x00) Default
-        - 00000100 (0x40) Indicator left
-        - 00001000 (0x80) Indicator right
+        - 0000 0000 (0x00) Default
+        - 0000 0100 (0x40) Indicator left
+        - 0000 1000 (0x80) Indicator right
 ### 0x300
     - b1
         - Light control panel mode
-        - 00000000 (0x00) OFF
-        - 00101000 (0x28) Daytime lights
-        - 00011000 (0x18) Low-beam lights
-        - 10000000 (+80) Front-fog lights button
-        - 01000000 (+40) Rear-fog lights button
+        - 0000 0000 (0x00) OFF
+        - 0010 1000 (0x28) Daytime lights
+        - 0001 1000 (0x18) Low-beam lights
+        - 1000 0000 (+80) Front-fog lights button
+        - 0100 0000 (+40) Rear-fog lights button
 ### 0x310
     - b1
         - SID-C ESP button
-        - 00000000 (0x00) OFF
-        - 00000001 (0x01) Pressed
+        - 0000 0000 (0x00) OFF
+        - 0000 0001 (0x01) Pressed
     - b5
         - SID-C Spare button
-        - 00000000 (0x00) OFF
-        - 00100000 (0x20) ON (Toggle)
+        - 0000 0000 (0x00) OFF
+        - 0010 0000 (0x20) ON (Toggle)
 ### 0x320
     - b0
         - Locking status / controls 
-        - 00010000 (0x10) Driver unlocked
-        - 00010001 (0x11) Driver locked
-        - 00010100 (0x14) Unlock Button
-        - 00011001 (0x19) Lock Button
+        - 0001 0000 (0x10) Driver unlocked
+        - 0001 0001 (0x11) Driver locked
+        - 0001 0100 (0x14) Unlock Button
+        - 0001 1001 (0x19) Lock Button
     - b1
         - Mirror adjustment, triggered by d-pad
-        - 00000000 (0x00) Default
-        - 10000000 (0x80) Adjustment in progress
+        - 0000 0000 (0x00) Default
+        - 1000 0000 (0x80) Adjustment in progress
     - b3
         - Mirror adjust DPAD direction (for left mirror only?)
-        - 00010000 (0x10) LEFT
-        - 00100000 (0x20) RIGHT
-        - 01000000 (0x40) DOWN
-        - 10000000 (0x80) UP
+        - 0001 0000 (0x10) LEFT
+        - 0010 0000 (0x20) RIGHT
+        - 0100 0000 (0x40) DOWN
+        - 1000 0000 (0x80) UP
     - 
 ### 0x340
     - b0
@@ -140,25 +140,26 @@ States are represented in binary and hex, and are provided with a human-readable
 ### 0x370
     - b0
         - Front fog lights / reversing light
-        - 00000000 (0x00) OFF
-        - 00000001 (0x01) REVERSE
-        - 01000000 (0x40) ON
-        - 01000001 (0x41) ON and REVERSE
+        - 0000 0000 (0x00) OFF
+        - 0000 0001 (0x01) REVERSE
+        - 0100 0000 (0x40) ON
+        - 0100 0001 (0x41) ON and REVERSE
 ### 0x380
     - b0
         - Brakes pressesd
-        - 00000000 (0x00) Default
-        - 00100000 (0x20) Brakes pressed
+        - 0000 0000 (0x00) Default
+        - 0010 0000 (0x20) Brakes pressed
     - b1
         - Rear fog lights
-        - 00000000 (0x00) OFF
-        - 00100000 (0x20) ON
+        - 0000 0000 (0x00) OFF
+        - 0010 0000 (0x20) ON
 ### 0x460
     - b0
-        - 00000000 (0x00) Night mode off
-        - 01000000 (0x40) Night mode on
-    - b1:b2
+        - 0000 0000 (0x00) Night mode off
+        - 0100 0000 (0x40) Night mode on
+    - b1
         - Instrument lighting brightness levels 
+    - b2
         - Night mode brightness
         - Two independant 8 bit integers
     - b3:b4
@@ -170,14 +171,19 @@ States are represented in binary and hex, and are provided with a human-readable
      - Normal state
         - 0x00 0x00 
      - b1 - door open state
-        - (0x80) Front left
-        - (0x20) Front Right
-        - (0x08) Rear left
-        - (0x02) Rear right
+        - 1000 0000 (0x80) Front left
+        - 0010 0000 (0x20) Front Right
+        - 0000 1000 (0x08) Rear left
+        - 0000 0010 (0x02) Rear right
+
+        - 0000 1010 (0x0A) both rear doors
+        - 0010 0010 (0x22)
+        - 0010 1010 (0x2A)
+        - 1000 1010 (0x8A)
+        - 1010 0000 (0xA0) both front doors
+        - 1010 0010 (0xA2)
+        - 1010 1010 (0xAA)
         
-        0xA0 both front doors
-        0x0A both rear doors
-        ... etc
 ### 0x520
     - b0
         - Years after 2000
