@@ -177,12 +177,15 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0000 0010 (0x02) Rear right
 
         - 0000 1010 (0x0A) both rear doors
-        - 0010 0010 (0x22)
-        - 0010 1010 (0x2A)
-        - 1000 1010 (0x8A)
+        - 0010 0010 (0x22) front right & rear right
+        - 0010 1000 (0x28) front right & rear left
+        - 0010 1010 (0x2A) front right & rear both
+        - 1000 1000 (0x88) front left & rear left
+        - 1000 1010 (0x8A) front left & rear both
         - 1010 0000 (0xA0) both front doors
-        - 1010 0010 (0xA2)
-        - 1010 1010 (0xAA)
+        - 1010 0010 (0xA2) both front doors & rear right
+        - 1010 1000 (0xA8) both front doors & rear left
+        - 1010 1010 (0xAA) all 4 doors open
         
 ### 0x520
     - b0
