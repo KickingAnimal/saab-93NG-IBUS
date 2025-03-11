@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/95be56a8-471c-4dcc-8d8b-756ece3de340)# saab-93NG-IBUS
+# saab-93NG-IBUS
 A collection of known I-BUS messages found in 2002/2003+ second-generation SAAB 9-3's. PR's welcome.
 Some frames have not been verified and came form a trionictuning thread, 9-3ss 2006+
 
