@@ -104,7 +104,8 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0001 1000 (0x18) Low-beam lights
         - 1000 0000 (+80) Front-fog lights button
         - 0100 0000 (+40) Rear-fog lights button
-### 0x310
+### 0x310 Sent by ICM
+    - message is 7 bytes long
     - b1
         - SID-C ESP button
         - 0000 0000 (0x00) OFF
@@ -153,7 +154,8 @@ States are represented in binary and hex, and are provided with a human-readable
         - Rear fog lights
         - 0000 0000 (0x00) OFF
         - 0010 0000 (0x20) ON
-### 0x460
+### 0x460 sent by ICM
+    - message is 5 bytes long
     - b0
         - 0000 0000 (0x00) Night mode off
         - 0100 0000 (0x40) Night mode on
@@ -165,7 +167,7 @@ States are represented in binary and hex, and are provided with a human-readable
     - b3:b4
         - Brightness sensor
         - 16 bit integer
-### 0x490 SID Door state
+### 0x490 "SID Door state"
      - sending the open state on bus shows door open icon on SID, does not activate interior lights.
      - key in lock position does make beeping sound
      - Normal state
@@ -206,3 +208,7 @@ States are represented in binary and hex, and are provided with a human-readable
     - b5
         - Second
         - 8 bit int
+### 0x627 Sent by ICM
+    - message is 7 bytes long
+
+
