@@ -95,7 +95,7 @@ States are represented in binary and hex, and are provided with a human-readable
         - When MSB is 1, subtract 65536 from (b1 << 8), before adding with b2.
         - This results in a range of ~-8600 to ~+8600 representing full wheel range (lock to lock).
         - Unsure what the real-world angle-equivalent of this value is (yet). 
-### 0x24F -- have not seen this CAN ID on scope
+### 0x24F - UEC
      - b3
          - (0x40) right low beam
          - (0x80) left low beam
@@ -108,6 +108,8 @@ States are represented in binary and hex, and are provided with a human-readable
                     | 06 AE 02 00 04 00 04 00    right fog
                     | 06 AE 02 80 00 80 00 00    left low beam
                     | 06 AE 02 40 00 40 00 00    right low beam
+
+### 0x249 - REC
 
 ### 0x290
     - b0
