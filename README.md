@@ -7,7 +7,7 @@ Single-Wire GM-LAN Bus, 33.33kbps
 Messages are presented byte-wise, where **b0** is the least-significant-byte.
 States are represented in binary and hex, and are provided with a human-readable description.
 
-***WIP most values aren't correct***
+***WIP values aren't always correct***
 
 ## BY ID
 ### 0x60
@@ -42,27 +42,37 @@ States are represented in binary and hex, and are provided with a human-readable
         - 1010 0000 (0xa0) Brake pressed
         
 ### 0x108
-    - might be missing something, turbo maybe?
+    - b0 acc pedal status, change from 03 to 05 when touch the acc pedal
     - b1
         - accelerator pedal
           00 - FF | 0% - 100%
     - b2:b3
         - 16 bit integer for RPM
+          Engine RPM/4 = real RPM
     - b4:b5
-        - 16 bit integer for KPH
-    ??
-             b0 b1 b2 b3 b4 b5 b6 b7
-    - ID 108 21 GG 00 WW QQ 00 00 00
-      GG    | 00 - FF | accelerator pedal (confirmed pedal position)
-      b2 b3 |         | Engine RPM/4 = real RPM
-      b4 b3 |         | Speed/128 = KM/H
+        - 16 bit integer for speed
+          Speed/128 = KM/H
+    - b6 looks to be status for turbo gauge
+### 0x140 milage
+    - b1:b2 left wheel
+    - b3:b4 right wheel
+    value*126/10000 = meters
 ### 0x170
     - b1 
       Coolant temp
-      Value - 0x28 for temp in celcius
+      b1 - 0x28 = temp in celcius
+      0x7D - 0x28 = 0x55 -- 85C
+      0x7E - 0x28 = 0x56 -- 86C
+      0x7F - 0x28 = 0x57 -- 87C
       0x80 - 0x28 = 0x58 -- 88C
-      0x7F - ~ = 0x57 -- 87C
-      0x7D - ~ = 0x55 -- 85C
+### 0x180 - b1,2,3 or b3,4,5? PDC sensors
+
+### 0x183
+    - b0
+        0x43 SPA not active
+        0x62 SPA active
+    -b2 - SPA distance?
+
 ### 0x210
     - b1 
         0x40 default?
@@ -70,16 +80,15 @@ States are represented in binary and hex, and are provided with a human-readable
         0x41 passenger seatbelt light on
     - b2 - some (un)locking logic
     - b3
-      01 default
-      03 after opening trunk from button
-      
+        0x01 default
+        0x03 after opening trunk from button
     - b4 passenger sensor
-        00 default
-        04 passenger in seat
-      b5
-      04 default
-      14 driver door open
-      05 trunk open
+        0x00 default
+        0x04 passenger in seat
+    - b5
+        0x04 default
+        0x14 driver door open
+        0x05 trunk open
 ### 0x211
     - indicators (relays?)
     - only sends data when active
@@ -87,6 +96,8 @@ States are represented in binary and hex, and are provided with a human-readable
     00 00 FC 43 - Hazards
     00 00 54 43 - Right
     00 00 A8 43 - Left
+### 0x212
+    - b0: 0x01 = 12hr time, 0x09 = 24hr time
 
 ### 0x220
     - b1:b2
@@ -95,6 +106,26 @@ States are represented in binary and hex, and are provided with a human-readable
         - When MSB is 1, subtract 65536 from (b1 << 8), before adding with b2.
         - This results in a range of ~-8600 to ~+8600 representing full wheel range (lock to lock).
         - Unsure what the real-world angle-equivalent of this value is (yet). 
+### 0x230 - keyfob
+    - b1 b2
+        0x10 0x40 LOCK
+        0x10 0xC0 LONG PRESS LOCK (FOLD MIRRORS)
+        0x10 0x10 UNLOCK
+        0x10 0x01 TURN HELLO (line on the fob)
+        0x10 0x03 LONG PRESS HELLO
+        0x10 0x02 TURN OFF HELLO
+        0x10 0x04 TRUNK
+        0x10 0x0C LONG TRUNK PRESS
+
+    Locking the car: 0x230 2 0x10 0x40
+    or
+    Unlocking the car: 0x230 2 0x10 0x10.
+
+### 0x249 - REC
+    ID 249 length 8 DATA 04 AE 03 80 80 00 00 00 - trunk switch
+    ID 249 length 8 DATA 04 AE 04 80 80 00 00 00 - brake light
+    ID 249 length 8 DATA 04 AE 08 80 80 00 00 00 - parking light
+
 ### 0x24F - UEC
      - b3
          - (0x40) right low beam
@@ -109,8 +140,6 @@ States are represented in binary and hex, and are provided with a human-readable
                     | 06 AE 02 80 00 80 00 00    left low beam
                     | 06 AE 02 40 00 40 00 00    right low beam
 
-### 0x249 - REC
-
 ### 0x290
     - b0
         - 0000 0001 (0x01) Windshield washer (pull stick fully in)
@@ -124,11 +153,11 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0000 1101 (0x0D) Wiper fast
     -b2
         - Wiper interval position
-        - 19 - pos1
-        4C pos2
-        7F pos3
-        B2 pos4
-        E5 pos5
+        - 0x19 - pos1
+        - 0x4C - pos2
+        - 0x7F - pos3
+        - 0xB2 - pos4
+        - 0xE5 - pos5
     - b3
         - 0000 0000 (0x00) Default
         - 0000 0001 (0x01) Volume UP
@@ -144,11 +173,11 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0000 0100 (0x40) Indicator left
         - 0000 1000 (0x80) Indicator right
 ### 0x300 
-    - for or from MIU? as the 08 parking brake (light) seems random for light switch to be sending..
+    - for or from MIU? as the b1 0x08 parking brake (light) seems random for light switch to be sending..
     - b1
         - Light control panel mode
         - 0000 0000 (0x00) inactive (key off)
-        -           (0x08) PARK light (MIU data maybe?)
+        -           (0x08) PARK light/handbrake (MIU data maybe?)
         -           (0x10) low beam parking brake off
         -           (0x20) daytime lights parking brake off
         - 0010 1000 (0x28) Daytime lights
@@ -157,26 +186,40 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0100 0000 (+40) Rear-fog lights button
 ### 0x310 Sent by ICM
     - message is 7/8 bytes long
+    - b0
+        - 0x00 full anti-theft
+        - 0x06 door only anti-theft
     - b1
-        - SID-C ESP button
+        - SID-C ESP/TCS button
         - 0000 0000 (0x00) OFF
         - 0000 0001 (0x01) Pressed
+        
+        - 0000 0100 (0x04) SPA active
+        -           (0x10) Rear defrost manual
+    - b3 - ACC
+        - 0x00 middle speed fan
+        - 0x04 high speed fan
+        - 0x10 low speed fan
+        - +40 AC auto
+    - b4
+        - 0x50 seat heater manual
+        - 0x10 seat heater auto
     - b5
-        - SID-C Spare button
         - 0000 0000 (0x00) OFF
-        - 0010 0000 (0x20) ON (Toggle)
+        - 0010 0000 (0x20) SID-C Spare button ON (Toggle)
+        -           (0x80) while clear long press
         
 ### 0x320  -- Driver Door Module (i believe)
     - b0
         - Locking status / controls 
-        - 0001 0000 (0x10) Driver unlocked  (00)
-        - 0001 0001 (0x11) Driver locked    (01)
-        - 0001 0100 (0x14) Unlock Button  (04)
-        - 0001 1001 (0x19) Lock Button    (08)
+        - 0001 0000 (0x10) Driver unlocked  (0x00)
+        - 0001 0001 (0x11) Driver locked    (0x01)
+        - 0001 0100 (0x14) Unlock Button  (0x04)
+        - 0001 1001 (0x19) Lock Button    (0x08)
     - b1
         - Mirror adjustment, triggered by d-pad
-        10 default?
-        90 adjustment (+80)
+        0x10 default?
+        0x90 adjustment (+80)
         - 0000 0000 (0x00) Default
         - 1000 0000 (0x80) Adjustment in progress
     - b2
@@ -190,23 +233,23 @@ States are represented in binary and hex, and are provided with a human-readable
         - 1000 0000 (0x80) UP
     
     - b5 buttons front windows from DDM
-        -  80 window (child) lock button pressed 
-        -  01 window (child) lock active
+        -  0x80 window (child) lock button pressed 
+        -  0x01 window (child) lock active
 
-        -  02 right up
-        -  04 right down
-        -  08 right comfort down
+        -  0x02 front right up
+        -  0x04 front right down
+        -  0x08 front right comfort down (2nd click)
         
-        -  10 left window button active
+        -  0x10 left window button active
                 
     - b6 buttons rear windows from DDM
-        -  04 RR up
-        -  08 RR down
-        -  10 RR comf down
+        -  0x04 RR up
+        -  0x08 RR down
+        -  0x10 RR comf down
           
-        -  20 RL up
-        -  40 RL down
-        -  80 RL comf down
+        -  0x20 RL up
+        -  0x40 RL down
+        -  0x80 RL comf down
 
         
 ### 0x340
@@ -222,17 +265,23 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0000 0001 (0x01) REVERSE
         - 0100 0000 (0x40) ON
         - 0100 0001 (0x41) ON and REVERSE
+        - 0x20 highbeams on
+        - 0x40 foglights on
     - b2
       0x80 when lights are not off. seems to be 0x80 if light panel is in any position other than off
 ### 0x380
     - b0
         - Brakes pressesd (or Brake light as b1 is rear fogs)
         - 0000 0000 (0x00) Default
-        - 0010 0000 (0x20) Brakes pressed
+        - 0010 0000 (0x20) Brakes pressed (brakelight on)
     - b1
         - Rear fog lights
         - 0000 0000 (0x00) OFF
         - 0010 0000 (0x20) ON
+    - b3
+        - 0x01 brake light?
+### 0x390
+    - b2 remaining fuel (from MIU to SID/ICM)
 ### 0x460 sent by ICM
     - message is 5 bytes long
     - b0
@@ -249,14 +298,15 @@ States are represented in binary and hex, and are provided with a human-readable
         - 16 bit integer
         - is affected by brightness value if sensor has low value?
 ### 0x445 temperatures
-    b1 - outside temp 0x58 4C outside
-    b2 - ? (same value as b1 for me)
+    b1 - outside temp 0x58 = 4Celcius outside (b1 - 0x50 / 2 = temp in celcius)
+    b2 - ? (same value as b1 for me) (0x50 - b2 / 2 = -temp in celcius)
     b3 - internal temp i believe. 0xFF on MCC eSID reads 215 Celcius (some calculation maybe)
 ### 0x490 "SID Door state"
      - sending the open state on bus shows door open icon on SID, does not activate interior lights.
      - key in lock position does make beeping sound
      - Normal state
         - 0x00 0x00 
+     - b0 - trunk status
      - b1 - door open state
         - 1000 0000 (0x80) Front left
         - 0010 0000 (0x20) Front Right
@@ -273,8 +323,10 @@ States are represented in binary and hex, and are provided with a human-readable
         - 1010 0010 (0xA2) both front doors & rear right
         - 1010 1000 (0xA8) both front doors & rear left
         - 1010 1010 (0xAA) all 4 doors open
-        
-### 0x520
+
+### 0x500 - diesel heater (temp & runtime)
+
+### 0x520 - time
     - b0
         - Years after 2000
         - 8 bit int
@@ -293,8 +345,19 @@ States are represented in binary and hex, and are provided with a human-readable
     - b5
         - Second
         - 8 bit int
+### 0x532
+    - b1 theft protection status
+### 0x535
+    - b0 0x40 - low fuel
+    - b1:b2 - used fuel since start (calulation is guess)
+            0x01:0x52 -> 0x0152
+            (0x0152 * 26)/100000 = 0,087L
+            (0xFFE5 * 26)/100000 = 17L
+            Value max = 0xFFFF after rolls over
+    - b3 - remaining fuel (from T8)
 ### 0x627 Sent by ICM
     - message is 7 bytes long
     *Not seen in vehicle, on ICM2. only on isolated ICM1*
+### 0x680 - auxiliary heater
 
 
