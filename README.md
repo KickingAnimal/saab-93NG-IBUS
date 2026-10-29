@@ -96,7 +96,8 @@ States are represented in binary and hex, and are provided with a human-readable
     00 00 FC 43 - Hazards
     00 00 54 43 - Right
     00 00 A8 43 - Left
-### 0x212
+
+### 0x212 (not seen on '03 9-3 sedan)
     - b0: 0x01 = 12hr time, 0x09 = 24hr time
 
 ### 0x220
@@ -106,15 +107,20 @@ States are represented in binary and hex, and are provided with a human-readable
         - When MSB is 1, subtract 65536 from (b1 << 8), before adding with b2.
         - This results in a range of ~-8600 to ~+8600 representing full wheel range (lock to lock).
         - Unsure what the real-world angle-equivalent of this value is (yet). 
+
 ### 0x230 - keyfob
+    Observed key number 3 b1 was 0x30.
+    sending commands b1 value did not seem to matter?
     - b1 b2
         0x10 0x40 LOCK
         0x10 0xC0 LONG PRESS LOCK (FOLD MIRRORS)
         0x10 0x10 UNLOCK
+        0x10 0x30 LONG PRESS UNLOCK (OPEN WINDOWS)
         0x10 0x01 TURN HELLO (line on the fob)
         0x10 0x03 LONG PRESS HELLO
         0x10 0x02 TURN OFF HELLO
-        0x10 0x04 TRUNK
+        0x10 0x04 TRUNK (unlock)
+        0x10 0x08 TRUNK SECOND PRESS (open)
         0x10 0x0C LONG TRUNK PRESS
 
     Locking the car: 0x230 2 0x10 0x40
@@ -122,23 +128,39 @@ States are represented in binary and hex, and are provided with a human-readable
     Unlocking the car: 0x230 2 0x10 0x10.
 
 ### 0x249 - REC
+    Send to activate:
+    06 AE 02 00 10 00 10 00 fog light(s)
+    06 AE 02 00 20 00 20 00 reverse light right
+    06 AE 02 00 40 00 40 00 reverse light left
+    06 AE 02 00 80 00 80 00 indicator light right
+    06 AE 02 01 00 01 00 00 indicator light left
+    06 AE 02 02 00 02 00 00 high mounted brake light
+    06 AE 02 04 00 04 00 00 brake light right
+    06 AE 02 08 00 08 00 00 brake light left
+
+    Below are unconfirmed
     ID 249 length 8 DATA 04 AE 03 80 80 00 00 00 - trunk switch
     ID 249 length 8 DATA 04 AE 04 80 80 00 00 00 - brake light
     ID 249 length 8 DATA 04 AE 08 80 80 00 00 00 - parking light
 
 ### 0x24F - UEC
-     - b3
+    Send to activate:
+     - b3 & b5
+         - (0x10) right high beam
+         - (0x20) left high beam
          - (0x40) right low beam
          - (0x80) left low beam
-    - b4
+    - b4 & b6
         - (0x04) right fog light
         - (0x08) left fog light
         
                       b0 b1 b2 b3 b4 b5 b6 b7
-    - length 8 DATA | 06 AE 02 00 08 00 08 00    left fog
-                    | 06 AE 02 00 04 00 04 00    right fog
-                    | 06 AE 02 80 00 80 00 00    left low beam
+    - length 8 DATA | 06 AE 02 00 04 00 04 00    right fog
+                    | 06 AE 02 00 08 00 08 00    left fog
+                    | 06 AE 02 10 00 10 00 00    right high beam
+                    | 06 AE 02 20 00 20 00 00    left high beam
                     | 06 AE 02 40 00 40 00 00    right low beam
+                    | 06 AE 02 80 00 80 00 00    left low beam
 
 ### 0x290
     - b0
@@ -148,12 +170,12 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0001 1000 (0x18) Toggle high beams (pull stick fully in)
     - b1
         - 0000 0001 (0x01) Wiper single
-        - 0000 1010 (0x0A) Wiper intermittent
+        - 0000 1010 (0x0A) Wiper intermittent/rain sensor
         - 0000 1011 (0x0B) Wiper slow
         - 0000 1101 (0x0D) Wiper fast
     -b2
         - Wiper interval position
-        - 0x19 - pos1
+        - 0x19 - pos1 (when rainsensor stalk is installed always 0x19)
         - 0x4C - pos2
         - 0x7F - pos3
         - 0xB2 - pos4
@@ -168,6 +190,7 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0000 0110 (0x06) Seek backward
         - 0001 0001 (0x11) NXT button
         - 0001 0010 (0x12) Phone button
+        - Automatic gearbox gear up/down btns missing here
     - b4
         - 0000 0000 (0x00) Default
         - 0000 0100 (0x40) Indicator left
@@ -184,7 +207,7 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0001 1000 (0x18) Low-beam lights
         - 1000 0000 (+80) Front-fog lights button
         - 0100 0000 (+40) Rear-fog lights button
-### 0x310 Sent by ICM
+### 0x310 Sent by ICM?
     - message is 7/8 bytes long
     - b0
         - 0x00 full anti-theft
@@ -195,13 +218,13 @@ States are represented in binary and hex, and are provided with a human-readable
         - 0000 0001 (0x01) Pressed
         
         - 0000 0100 (0x04) SPA active
-        -           (0x10) Rear defrost manual
-    - b3 - ACC
+        -           (0x10) Rear defrost manual (not seen on '03 with ACC)
+    - b3 - ACC (not seen on '03 with ACC)
         - 0x00 middle speed fan
         - 0x04 high speed fan
         - 0x10 low speed fan
         - +40 AC auto
-    - b4
+    - b4 (not seen on '03 with ACC)
         - 0x50 seat heater manual
         - 0x10 seat heater auto
     - b5
@@ -244,10 +267,12 @@ States are represented in binary and hex, and are provided with a human-readable
                 
     - b6 buttons rear windows from DDM
         -  0x04 RR up
+        -  0x0c RR comf up
         -  0x08 RR down
         -  0x10 RR comf down
           
         -  0x20 RL up
+        -  0x60 RL comf up
         -  0x40 RL down
         -  0x80 RL comf down
 
